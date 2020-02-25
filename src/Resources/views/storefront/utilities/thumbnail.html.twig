@@ -26,12 +26,6 @@
         {{ media|sw_encode_media_url }} {{ thumbnails|first.width + 1 }}w, {% for thumbnail in thumbnails %}{{ thumbnail.url | sw_encode_url }} {{ thumbnail.width }}w{% if not loop.last %}, {% endif %}{% endfor %}
     {% endapply %}{% endset %}
 
-    {% if shopware.config.FroshPlatformWebP.config.enable %}
-        {% set srcsetValueWebP %}{% apply spaceless %}
-            {{ media|sw_encode_media_url }} {{ thumbnails|first.width + 1 }}w, {% for thumbnail in thumbnails %}{{ thumbnail.url | frosh_webp_url | sw_encode_url }} {{ thumbnail.width }}w{% if not loop.last %}, {% endif %}{% endfor %}
-        {% endapply %}{% endset %}
-    {% endif %}
-
     {# generate sizes #}
     {% set sizesValue %}{% apply spaceless %}
         {% set sizeFallback = 100 %}
@@ -55,34 +49,8 @@
     {% set attributes = attributes|merge({'class': 'lazyload'}) %}
 {% endif %}
 
-{% if shopware.config.FroshPlatformWebP.config.enable %}
-    <picture>
-        <source src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
-            data-src="{{ media|sw_encode_media_url }}"
-            data-srcset="{{ srcsetValueWebP }}"
-            {% if sizes['default'] %}
-            data-sizes="{{ sizes['default'] }}"
-            {% elseif sizes|length > 0 %}
-            data-sizes="{{ sizesValue }}"
-            {% endif %}
-            type="image/webp"
-        >
-        <img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
-             data-src="{{ media|sw_encode_media_url }}"
-        {% if media.thumbnails|length > 0 %}
-             data-srcset="{{ srcsetValue }}"
-            {% if sizes['default'] %}
-             data-sizes="{{ sizes['default'] }}"
-            {% elseif sizes|length > 0 %}
-             data-sizes="{{ sizesValue }}"
-            {% endif %}
-        {% endif %}
-        {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value }}"{% endif %}{% endfor %}
-        />
-    </picture>
-{% else %}
-    <img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
-         data-src="{{ media|sw_encode_media_url }}"
+<img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+     data-src="{{ media|sw_encode_media_url }}"
     {% if media.thumbnails|length > 0 %}
         data-srcset="{{ srcsetValue }}"
         {% if sizes['default'] %}
@@ -93,4 +61,4 @@
     {% endif %}
     {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value }}"{% endif %}{% endfor %}
 />
-{% endif %}
+
