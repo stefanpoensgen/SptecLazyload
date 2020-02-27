@@ -1,3 +1,4 @@
+![Release](https://github.com/stefanpoensgen/SptecLazyload/workflows/Release/badge.svg)
 # SptecLazyLoad
 
 Simple integration of [lazysizes](https://github.com/aFarkas/lazysizes) into Shopware 6.
