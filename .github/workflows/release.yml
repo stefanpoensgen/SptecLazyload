@@ -1,0 +1,57 @@
+name: Release
+
+on:
+    push:
+        branches:
+            - master
+
+        tags:
+            - '*'
+
+jobs:
+    build-release:
+        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/')
+
+        name: Build release
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            -   name: Get version
+                id: getVersion
+                run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+            - name: Prepare release
+              env:
+                  REPOSITORY: ${{ github.event.repository.name }}
+                  VERSION: ${{ steps.getVersion.outputs.VERSION }}
+              run: mkdir release && git archive --prefix ${REPOSITORY}/ ${VERSION} --format=zip > release/${REPOSITORY}-${VERSION}.zip
+
+            - name: Upload artifacts
+              uses: actions/upload-artifact@v1
+              with:
+                  name: latest
+                  path: release
+    release:
+        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/')
+        name: Publish release
+        needs: [build-release]
+        runs-on: ubuntu-latest
+
+        steps:
+            -   name: Download release artifacts
+                uses: actions/download-artifact@v1
+                with:
+                    name: latest
+
+            -   name: Upload assets
+                uses: svenstaro/upload-release-action@v1-release
+                with:
+                    repo_token: ${{ secrets.GITHUB_TOKEN }}
+                    file: latest/*
+                    asset_name:
+                    tag: ${{ github.ref }}
+                    overwrite: true
+                    file_glob: true

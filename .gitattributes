@@ -1,3 +1,4 @@
+.github export-ignore
 /bin export-ignore
 /src/Resources/app/storefront/package.json export-ignore
 /src/Resources/app/storefront/package-lock.json export-ignore
