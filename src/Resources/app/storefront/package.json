@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "private": true,
     "dependencies": {
-        "lazysizes": "^5.2.0"
+        "lazysizes": "^5.2.1"
     },
     "author": "Stefan Poensgen",
     "license": "MIT"
