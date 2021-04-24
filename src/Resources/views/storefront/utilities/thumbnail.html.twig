@@ -1,3 +1,12 @@
+{% if attributes is not defined %}
+    {% set attributes = {} %}
+{% endif %}
+
+{# activate load per default. If it is not activated only a data-src is set instead of the src tag. #}
+{% if load is not defined %}
+    {% set load = true %}
+{% endif %}
+
 {# uses cms block column count and all available thumbnails to determine the correct image size for the current viewport #}
 {% if media.thumbnails|length > 0 %}
     {% if columns and sizes is not defined %}
@@ -43,22 +52,36 @@
     {% endapply %}{% endset %}
 {% endif %}
 
-{% if attributes.class %}
-    {% set attributes = attributes|merge({'class': 'lazyload ' ~ attributes.class}) %}
-{% else %}
-    {% set attributes = attributes|merge({'class': 'lazyload'}) %}
-{% endif %}
-
-<img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
-     data-src="{{ media|sw_encode_media_url }}"
-    {% if media.thumbnails|length > 0 %}
-        data-srcset="{{ srcsetValue }}"
-        {% if sizes['default'] %}
-        data-sizes="{{ sizes['default'] }}"
-        {% elseif sizes|length > 0 %}
-        data-sizes="{{ sizesValue }}"
-        {% endif %}
+{% if load is same as(true) %}
+    {% if attributes.class %}
+        {% set attributes = attributes|merge({'class': 'lazyload ' ~ attributes.class}) %}
+    {% else %}
+        {% set attributes = attributes|merge({'class': 'lazyload'}) %}
     {% endif %}
-    {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value }}"{% endif %}{% endfor %}
-/>
 
+    <img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+        data-src="{{ media|sw_encode_media_url }}"
+        {% if media.thumbnails|length > 0 %}
+            data-srcset="{{ srcsetValue }}"
+            {% if sizes['default'] %}
+            data-sizes="{{ sizes['default'] }}"
+            {% elseif sizes|length > 0 %}
+            data-sizes="{{ sizesValue }}"
+            {% endif %}
+        {% endif %}
+        {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value }}"{% endif %}{% endfor %}
+    />
+
+    {% else %}
+        <img data-src="{{ media|sw_encode_media_url }}"
+            {% if media.thumbnails|length > 0 %}
+                data-srcset="{{ srcsetValue }}"
+                {% if sizes['default'] %}
+                sizes="{{ sizes['default'] }}"
+                {% elseif sizes|length > 0 %}
+                sizes="{{ sizesValue }}"
+                {% endif %}
+            {% endif %}
+            {% for key, value in attributes %} {{ key }}="{{ value }}"{% endfor %}
+        />
+{% endif %}
