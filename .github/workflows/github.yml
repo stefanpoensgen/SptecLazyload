@@ -1,0 +1,14 @@
+name: PackPlugin
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    uses: FriendsOfShopware/actions/.github/workflows/github.yml@main
+    with:
+      extensionName: ${{ github.event.repository.name }}
+      shopwareVersion: '6.4.14'
+    secrets:
+      ghToken: ${{ secrets.GITHUB_TOKEN }}
