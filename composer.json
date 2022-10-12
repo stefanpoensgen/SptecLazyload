@@ -1,6 +1,6 @@
 {
     "name": "sptec/lazyload",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "type": "shopware-platform-plugin",
     "description": "Simple integration of lazysizes into Shopware 6.",
     "license": "MIT",
@@ -17,7 +17,6 @@
     },
     "extra": {
         "shopware-plugin-class": "Sptec\\Lazyload\\SptecLazyload",
-        "copyright": "Stefan Poensgen",
         "label": {
             "de-DE": "Lazyload",
             "en-GB": "Lazyload"
@@ -25,10 +24,18 @@
         "description": {
             "de-DE": "Einfache Integration von Lazysizes in Shopware 6.",
             "en-GB": "Simple integration of lazysizes into Shopware 6."
+        },
+        "manufacturerLink": {
+            "de-DE": "https://github.com/stefanpoensgen/SptecLazyload",
+            "en-GB": "https://github.com/stefanpoensgen/SptecLazyload"
+        },
+        "supportLink": {
+            "de-DE": "https://github.com/stefanpoensgen/SptecLazyload/issues",
+            "en-GB": "https://github.com/stefanpoensgen/SptecLazyload/issues"
         }
     },
     "require": {
-        "shopware/core": "~6.1",
-        "shopware/storefront": "~6.1"
+        "shopware/core": "~6.4",
+        "shopware/storefront": "~6.4"
     }
 }
