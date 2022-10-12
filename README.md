@@ -15,7 +15,7 @@ Installation
 
 Contributing
 -----
-Feel free to fork and send [pull requests](https://github.com/stefanpoensgen/SptecOrderComments)!
+Feel free to fork and send [pull requests](https://github.com/stefanpoensgen/SptecLazyload)!
 
 Licence
 -----
