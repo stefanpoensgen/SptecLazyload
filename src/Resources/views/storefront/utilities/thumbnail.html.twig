@@ -1,21 +1,41 @@
-{% if attributes is not defined %}
-    {% set attributes = {} %}
-{% endif %}
-
 {# activate load per default. If it is not activated only a data-src is set instead of the src tag. #}
 {% if load is not defined %}
     {% set load = true %}
 {% endif %}
 
+{# By default no original image will be loaded as soon as thumbnails are available. #}
+{# When set to true the orginal image will be loaded when the viewport is greater than the largest available thumbnail. #}
+{% if loadOriginalImage is not defined %}
+    {% set loadOriginalImage = false %}
+{% endif %}
+
+{# By default the srcset sizes will be calculated automatically if `columns` are present and no `sizes` are configured. #}
+{# When set to false the sizes attribute will not be generated automatically. #}
+{% if autoColumnSizes %}
+    {% set autoColumnSizes = true %}
+{% endif %}
+
+{% if attributes is not defined %}
+    {% set attributes = {} %}
+{% endif %}
+
+{% if attributes.alt is not defined and media.translated.alt is defined %}
+    {% set attributes = attributes|merge({'alt': media.translated.alt}) %}
+{% endif %}
+
+{% if attributes.title is not defined and media.translated.title is defined %}
+    {% set attributes = attributes|merge({'title': media.translated.title}) %}
+{% endif %}
+
 {# uses cms block column count and all available thumbnails to determine the correct image size for the current viewport #}
 {% if media.thumbnails|length > 0 %}
-    {% if columns and sizes is not defined %}
+    {% if autoColumnSizes and columns and sizes is not defined %}
         {# set image size for every viewport #}
         {% set sizes = {
-            'xs': (shopware.theme.breakpoint.sm - 1) ~'px',
-            'sm': (shopware.theme.breakpoint.md - 1) ~'px',
-            'md': ((shopware.theme.breakpoint.lg - 1) / columns)|round(0, 'ceil') ~'px',
-            'lg': ((shopware.theme.breakpoint.xl - 1) / columns)|round(0, 'ceil') ~'px'
+            'xs': (theme_config('breakpoint.sm') - 1) ~'px',
+            'sm': (theme_config('breakpoint.md') - 1) ~'px',
+            'md': ((theme_config('breakpoint.lg') - 1) / columns)|round(0, 'ceil') ~'px',
+            'lg': ((theme_config('breakpoint.xl') - 1) / columns)|round(0, 'ceil') ~'px'
         } %}
 
         {# set image size for largest viewport depending on the cms block sizing mode (boxed or full-width) #}
@@ -32,7 +52,7 @@
 
     {# generate srcset with all available thumbnails #}
     {% set srcsetValue %}{% apply spaceless %}
-        {{ media|sw_encode_media_url }} {{ thumbnails|first.width + 1 }}w, {% for thumbnail in thumbnails %}{{ thumbnail.url | sw_encode_url }} {{ thumbnail.width }}w{% if not loop.last %}, {% endif %}{% endfor %}
+        {% if loadOriginalImage %}{{ media|sw_encode_media_url }} {{ thumbnails|first.width + 1 }}w, {% endif %}{% for thumbnail in thumbnails %}{{ thumbnail.url | sw_encode_url }} {{ thumbnail.width }}w{% if not loop.last %}, {% endif %}{% endfor %}
     {% endapply %}{% endset %}
 
     {# generate sizes #}
@@ -40,15 +60,24 @@
         {% set sizeFallback = 100 %}
 
         {# set largest size depending on column count of cms block #}
-        {% if columns %}
+        {% if autoColumnSizes and columns %}
             {% set sizeFallback = (sizeFallback / columns)|round(0, 'ceil') %}
         {% endif %}
 
-        {% if thumbnails|first.width > shopware.theme.breakpoint|reverse|first %}
+        {% set breakpoint = {
+            'xs': theme_config('breakpoint.xs'),
+            'sm': theme_config('breakpoint.sm'),
+            'md': theme_config('breakpoint.md'),
+            'lg': theme_config('breakpoint.lg'),
+            'xl': theme_config('breakpoint.xl')
+        } %}
+
+        {% if thumbnails|first.width > breakpoint|reverse|first %}
+            {# @deprecated tag:v6.5.0 - Variable `maxWidth` and parent condition will be removed #}
             {% set maxWidth = thumbnails|first.width %}
         {% endif %}
 
-        {% for key, value in shopware.theme.breakpoint|reverse %}{% if maxWidth %}(max-width: {{ maxWidth }}px) and {% endif %}(min-width: {{ value }}px) {{ sizes[key] }}{% set maxWidth = value-1 %}{% if not loop.last %}, {% endif %}{% endfor %}, {{ sizeFallback }}vw
+        {% for key, value in breakpoint|reverse %}(min-width: {{ value }}px) {{ sizes[key] }}{% if not loop.last %}, {% endif %}{% endfor %}, {{ sizeFallback }}vw
     {% endapply %}{% endset %}
 {% endif %}
 
@@ -59,29 +88,34 @@
         {% set attributes = attributes|merge({'class': 'lazyload'}) %}
     {% endif %}
 
+    {% set ratio = media.metaData.width ~ '/' ~ media.metaData.height %}
+    {% set inlineStyle = "aspect-ratio:" ~ ratio ~ ";" %}
+    {% if attributes.style %}
+        {% set attributes = attributes|merge({'style': inlineStyle ~ attributes.style}) %}
+    {% else %}
+        {% set attributes = attributes|merge({'style': inlineStyle}) %}
+    {% endif %}
+
     <img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
         data-src="{{ media|sw_encode_media_url }}"
+        {% if srcsetValue %}
+            data-srcset="{{ srcsetValue }}"
+            data-sizes="auto"
+            data-aspectratio="{{ ratio }}"
+            data-parent-fit="contain"
+        {% endif %}
+        {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value }}"{% endif %}{% endfor %}
+    />
+{% else %}
+    <img data-src="{{ media|sw_encode_media_url }}"
         {% if media.thumbnails|length > 0 %}
             data-srcset="{{ srcsetValue }}"
             {% if sizes['default'] %}
-            data-sizes="{{ sizes['default'] }}"
+            sizes="{{ sizes['default'] }}"
             {% elseif sizes|length > 0 %}
-            data-sizes="{{ sizesValue }}"
+            sizes="{{ sizesValue }}"
             {% endif %}
         {% endif %}
         {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value }}"{% endif %}{% endfor %}
     />
-
-    {% else %}
-        <img data-src="{{ media|sw_encode_media_url }}"
-            {% if media.thumbnails|length > 0 %}
-                data-srcset="{{ srcsetValue }}"
-                {% if sizes['default'] %}
-                sizes="{{ sizes['default'] }}"
-                {% elseif sizes|length > 0 %}
-                sizes="{{ sizesValue }}"
-                {% endif %}
-            {% endif %}
-            {% for key, value in attributes %} {{ key }}="{{ value }}"{% endfor %}
-        />
 {% endif %}
