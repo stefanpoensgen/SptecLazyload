@@ -1,16 +1,22 @@
-![Release](https://github.com/stefanpoensgen/SptecLazyload/workflows/Release/badge.svg)
 # SptecLazyLoad
 
 Simple integration of [lazysizes](https://github.com/aFarkas/lazysizes) into Shopware 6.
 
-## Installation
-* Checkout plugin in `/custom/plugins/SptecLazyLoad`
-* Install the plugin with the plugin manager
+Installation
+====
 
-## Contributing
+### Zip Installation package for the Shopware Plugin Manager
+* Download the latest plugin version
+* Upload and install plugin using Plugin Manager
 
-Feel free to fork and send pull requests!
+### Install with composer
+* Change to your root Installation of shopware
+* Run command `composer require sptec/lazyload` and install and active plugin with Plugin Manager
 
-## Licence
+Contributing
+-----
+Feel free to fork and send [pull requests](https://github.com/stefanpoensgen/SptecOrderComments)!
 
-This project uses the [MIT License](LICENCE.md).
+Licence
+-----
+This project uses the [MIT License](LICENSE.md).
